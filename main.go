@@ -9,9 +9,9 @@ type no struct {
 }
 
 type lista struct {
-	inicio  *no
-	fim     *no
-	tamanho int
+	inicio       *no
+	fim          *no
+	qtdElementos int
 }
 
 func (l *lista) adicionarInicio(valor int) {
@@ -21,7 +21,7 @@ func (l *lista) adicionarInicio(valor int) {
 	if l.fim == nil {
 		l.fim = novo
 	}
-	l.tamanho++
+	l.qtdElementos++
 }
 
 func (l *lista) adicionarFim(valor int) {
@@ -35,13 +35,13 @@ func (l *lista) adicionarFim(valor int) {
 		l.fim.proximo = novo
 		l.fim = novo
 	}
-	l.tamanho++
+	l.qtdElementos++
 }
 
 // adicionarPosicao insere valor no índice posicao (0 = início, tamanho = fim).
 // Retorna false se a posição for inválida.
 func (l *lista) adicionarPosicao(valor int, posicao int) bool {
-	if posicao < 0 || posicao > l.tamanho {
+	if posicao < 0 || posicao > l.qtdElementos {
 		return false
 	}
 
@@ -50,7 +50,7 @@ func (l *lista) adicionarPosicao(valor int, posicao int) bool {
 		return true
 	}
 
-	if posicao == l.tamanho {
+	if posicao == l.qtdElementos {
 		l.adicionarFim(valor)
 		return true
 	}
@@ -64,7 +64,7 @@ func (l *lista) adicionarPosicao(valor int, posicao int) bool {
 	novo.valor = valor
 	novo.proximo = anterior.proximo // 1º: o novo aponta para o restante da lista
 	anterior.proximo = novo         // 2º: o anterior passa a apontar para o novo
-	l.tamanho++
+	l.qtdElementos++
 
 	return true
 }
@@ -84,7 +84,7 @@ func (l *lista) removerInicio() (int, bool) {
 		l.fim = nil
 	}
 
-	l.tamanho--
+	l.qtdElementos--
 	return removido.valor, true
 }
 
@@ -101,7 +101,7 @@ func (l *lista) removerFim() (int, bool) {
 		// único elemento
 		l.inicio = nil
 		l.fim = nil
-		l.tamanho--
+		l.qtdElementos--
 		return valor, true
 	}
 
@@ -112,7 +112,7 @@ func (l *lista) removerFim() (int, bool) {
 
 	anterior.proximo = nil
 	l.fim = anterior
-	l.tamanho--
+	l.qtdElementos--
 
 	return valor, true
 }
@@ -120,7 +120,7 @@ func (l *lista) removerFim() (int, bool) {
 // removerPosicao remove e retorna o valor do nó no índice posicao.
 // Retorna (0, false) se a posição for inválida ou a lista estiver vazia.
 func (l *lista) removerPosicao(posicao int) (int, bool) {
-	if posicao < 0 || posicao >= l.tamanho {
+	if posicao < 0 || posicao >= l.qtdElementos {
 		return 0, false
 	}
 
@@ -128,7 +128,7 @@ func (l *lista) removerPosicao(posicao int) (int, bool) {
 		return l.removerInicio()
 	}
 
-	if posicao == l.tamanho-1 {
+	if posicao == l.qtdElementos-1 {
 		return l.removerFim()
 	}
 
@@ -139,7 +139,7 @@ func (l *lista) removerPosicao(posicao int) (int, bool) {
 
 	removido := anterior.proximo
 	anterior.proximo = anterior.proximo.proximo // pula o nó removido
-	l.tamanho--
+	l.qtdElementos--
 
 	return removido.valor, true
 }
@@ -164,7 +164,7 @@ func (l *lista) posicao(valorProcurado int) (int, bool) {
 // valorNaPosicao percorre a lista até posicaoProcurada e retorna o valor
 // armazenado ali. Retorna (0, false) se a posição não existir.
 func (l *lista) valorNaPosicao(posicaoProcurada int) (int, bool) {
-	if posicaoProcurada < 0 || posicaoProcurada >= l.tamanho {
+	if posicaoProcurada < 0 || posicaoProcurada >= l.qtdElementos {
 		return 0, false
 	}
 
@@ -176,121 +176,140 @@ func (l *lista) valorNaPosicao(posicaoProcurada int) (int, bool) {
 	return atual.valor, true
 }
 
-func (l *lista) imprimir() {
+// tamanho percorre a lista e conta os nós.
+func (l *lista) tamanho() int {
+	contador := 0
 	atual := l.inicio
-	fmt.Print("[ ")
+
 	for atual != nil {
-		fmt.Printf("%d ", atual.valor)
+		contador++
 		atual = atual.proximo
 	}
-	fmt.Printf("] (tamanho=%d)\n", l.tamanho)
+
+	return contador
+}
+
+// imprimir exibe os valores da lista no formato "10 -> 20 -> 30 -> nil".
+func (l *lista) imprimir() {
+	atual := l.inicio
+	for atual != nil {
+		fmt.Printf("%d -> ", atual.valor)
+		atual = atual.proximo
+	}
+	fmt.Println("nil")
+}
+
+func exibirMenu() {
+	fmt.Println("\n===== Lista Encadeada =====")
+	fmt.Println("1  - Adicionar no início")
+	fmt.Println("2  - Adicionar no fim")
+	fmt.Println("3  - Adicionar em posição específica")
+	fmt.Println("4  - Remover do início")
+	fmt.Println("5  - Remover do fim")
+	fmt.Println("6  - Remover de posição específica")
+	fmt.Println("7  - Buscar posição de um valor")
+	fmt.Println("8  - Buscar valor em uma posição")
+	fmt.Println("9  - Tamanho da lista")
+	fmt.Println("10 - Imprimir lista")
+	fmt.Println("0  - Sair")
+	fmt.Print("Escolha uma opção: ")
 }
 
 func main() {
 	l := &lista{}
+	opcao := -1
 
-	l.adicionarFim(10)   // [10]
-	l.adicionarInicio(5) // [5 10]
-	l.adicionarFim(20)   // [5 10 20]
-	l.adicionarInicio(1) // [1 5 10 20]
-	l.adicionarFim(30)   // [1 5 10 20 30]
+	for opcao != 0 {
+		exibirMenu()
+		fmt.Scan(&opcao)
 
-	fmt.Println("Resultado esperado: [ 1 5 10 20 30 ] (tamanho=5)")
-	fmt.Print("Resultado obtido:   ")
-	l.imprimir()
+		switch opcao {
+		case 1:
+			var valor int
+			fmt.Print("Valor: ")
+			fmt.Scan(&valor)
+			l.adicionarInicio(valor)
+			fmt.Println("Adicionado no início.")
 
-	ok := l.adicionarPosicao(99, 2)
-	fmt.Printf("\nadicionarPosicao(99, 2) -> ok=%v (esperado true)\n", ok)
-	fmt.Print("Resultado obtido:   ")
-	l.imprimir()
-	fmt.Println("Resultado esperado: [ 1 5 99 10 20 30 ] (tamanho=6)")
+		case 2:
+			var valor int
+			fmt.Print("Valor: ")
+			fmt.Scan(&valor)
+			l.adicionarFim(valor)
+			fmt.Println("Adicionado no fim.")
 
-	okInicio := l.adicionarPosicao(0, 0)
-	fmt.Printf("\nadicionarPosicao(0, 0) -> ok=%v (esperado true, insere no início)\n", okInicio)
-	l.imprimir()
+		case 3:
+			var valor, posicao int
+			fmt.Print("Valor: ")
+			fmt.Scan(&valor)
+			fmt.Print("Posição: ")
+			fmt.Scan(&posicao)
+			if l.adicionarPosicao(valor, posicao) {
+				fmt.Println("Adicionado na posição", posicao)
+			} else {
+				fmt.Println("Posição inválida.")
+			}
 
-	okFim := l.adicionarPosicao(999, l.tamanho)
-	fmt.Printf("\nadicionarPosicao(999, tamanho) -> ok=%v (esperado true, insere no fim)\n", okFim)
-	l.imprimir()
+		case 4:
+			valor, ok := l.removerInicio()
+			if ok {
+				fmt.Println("Removido:", valor)
+			} else {
+				fmt.Println("Lista vazia.")
+			}
 
-	okInvalida := l.adicionarPosicao(0, -1)
-	okForaDoIntervalo := l.adicionarPosicao(0, l.tamanho+1)
-	fmt.Printf("\nadicionarPosicao(0, -1) -> ok=%v (esperado false)\n", okInvalida)
-	fmt.Printf("adicionarPosicao(0, tamanho+1) -> ok=%v (esperado false)\n", okForaDoIntervalo)
+		case 5:
+			valor, ok := l.removerFim()
+			if ok {
+				fmt.Println("Removido:", valor)
+			} else {
+				fmt.Println("Lista vazia.")
+			}
 
-	fmt.Println("\n--- removerInicio / removerFim ---")
-	l2 := &lista{}
-	l2.adicionarFim(10)
-	l2.adicionarFim(20)
-	l2.adicionarFim(30) // [10 20 30]
+		case 6:
+			var posicao int
+			fmt.Print("Posição: ")
+			fmt.Scan(&posicao)
+			valor, ok := l.removerPosicao(posicao)
+			if ok {
+				fmt.Println("Removido:", valor)
+			} else {
+				fmt.Println("Posição inválida.")
+			}
 
-	valor, ok2 := l2.removerInicio()
-	fmt.Printf("removerInicio() -> valor=%d ok=%v (esperado 10 true)\n", valor, ok2)
-	l2.imprimir()
+		case 7:
+			var valor int
+			fmt.Print("Valor: ")
+			fmt.Scan(&valor)
+			idx, ok := l.posicao(valor)
+			if ok {
+				fmt.Println("Encontrado na posição", idx)
+			} else {
+				fmt.Println("Valor não encontrado.")
+			}
 
-	valor, ok2 = l2.removerFim()
-	fmt.Printf("removerFim() -> valor=%d ok=%v (esperado 30 true)\n", valor, ok2)
-	l2.imprimir()
+		case 8:
+			var posicao int
+			fmt.Print("Posição: ")
+			fmt.Scan(&posicao)
+			valor, ok := l.valorNaPosicao(posicao)
+			if ok {
+				fmt.Println("Valor:", valor)
+			} else {
+				fmt.Println("Posição inválida.")
+			}
 
-	// lista com um único elemento: remoção deve zerar início e fim
-	valor, ok2 = l2.removerInicio()
-	fmt.Printf("removerInicio() (único elemento) -> valor=%d ok=%v (esperado 20 true)\n", valor, ok2)
-	l2.imprimir()
+		case 9:
+			fmt.Println("Tamanho:", l.tamanho())
 
-	// lista vazia
-	valor, ok2 = l2.removerInicio()
-	fmt.Printf("removerInicio() (lista vazia) -> valor=%d ok=%v (esperado 0 false)\n", valor, ok2)
+		case 10:
+			l.imprimir()
 
-	valor, ok2 = l2.removerFim()
-	fmt.Printf("removerFim() (lista vazia) -> valor=%d ok=%v (esperado 0 false)\n", valor, ok2)
+		case 0:
+			fmt.Println("Encerrando.")
 
-	fmt.Println("\n--- removerPosicao ---")
-	l3 := &lista{}
-	l3.adicionarFim(10)
-	l3.adicionarFim(20)
-	l3.adicionarFim(30)
-	l3.adicionarFim(40) // [10 20 30 40]
-
-	valor, ok3 := l3.removerPosicao(1)
-	fmt.Printf("removerPosicao(1) -> valor=%d ok=%v (esperado 20 true)\n", valor, ok3)
-	l3.imprimir()
-
-	valor, ok3 = l3.removerPosicao(-1)
-	fmt.Printf("removerPosicao(-1) -> valor=%d ok=%v (esperado 0 false)\n", valor, ok3)
-
-	valor, ok3 = l3.removerPosicao(l3.tamanho)
-	fmt.Printf("removerPosicao(tamanho) -> valor=%d ok=%v (esperado 0 false)\n", valor, ok3)
-
-	// lista vazia
-	vazia := &lista{}
-	valor, ok3 = vazia.removerPosicao(0)
-	fmt.Printf("removerPosicao(0) em lista vazia -> valor=%d ok=%v (esperado 0 false)\n", valor, ok3)
-
-	fmt.Println("\n--- posicao (busca por valor) ---")
-	l4 := &lista{}
-	l4.adicionarFim(10)
-	l4.adicionarFim(20)
-	l4.adicionarFim(30) // [10 20 30]
-
-	idx, ok4 := l4.posicao(20)
-	fmt.Printf("posicao(20) -> indice=%d ok=%v (esperado 1 true)\n", idx, ok4)
-
-	idx, ok4 = l4.posicao(999)
-	fmt.Printf("posicao(999) -> indice=%d ok=%v (esperado 0 false)\n", idx, ok4)
-
-	idx, ok4 = vazia.posicao(10)
-	fmt.Printf("posicao(10) em lista vazia -> indice=%d ok=%v (esperado 0 false)\n", idx, ok4)
-
-	fmt.Println("\n--- valorNaPosicao ---")
-	valorPos, ok5 := l4.valorNaPosicao(1)
-	fmt.Printf("valorNaPosicao(1) -> valor=%d ok=%v (esperado 20 true)\n", valorPos, ok5)
-
-	valorPos, ok5 = l4.valorNaPosicao(-1)
-	fmt.Printf("valorNaPosicao(-1) -> valor=%d ok=%v (esperado 0 false)\n", valorPos, ok5)
-
-	valorPos, ok5 = l4.valorNaPosicao(l4.tamanho)
-	fmt.Printf("valorNaPosicao(tamanho) -> valor=%d ok=%v (esperado 0 false)\n", valorPos, ok5)
-
-	valorPos, ok5 = vazia.valorNaPosicao(0)
-	fmt.Printf("valorNaPosicao(0) em lista vazia -> valor=%d ok=%v (esperado 0 false)\n", valorPos, ok5)
+		default:
+			fmt.Println("Opção inválida.")
+		}
+	}
 }
