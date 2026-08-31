@@ -117,6 +117,33 @@ func (l *lista) removerFim() (int, bool) {
 	return valor, true
 }
 
+// removerPosicao remove e retorna o valor do nó no índice posicao.
+// Retorna (0, false) se a posição for inválida ou a lista estiver vazia.
+func (l *lista) removerPosicao(posicao int) (int, bool) {
+	if posicao < 0 || posicao >= l.tamanho {
+		return 0, false
+	}
+
+	if posicao == 0 {
+		return l.removerInicio()
+	}
+
+	if posicao == l.tamanho-1 {
+		return l.removerFim()
+	}
+
+	anterior := l.inicio
+	for i := 0; i < posicao-1; i++ {
+		anterior = anterior.proximo
+	}
+
+	removido := anterior.proximo
+	anterior.proximo = anterior.proximo.proximo // pula o nó removido
+	l.tamanho--
+
+	return removido.valor, true
+}
+
 func (l *lista) imprimir() {
 	atual := l.inicio
 	fmt.Print("[ ")
@@ -184,4 +211,26 @@ func main() {
 
 	valor, ok2 = l2.removerFim()
 	fmt.Printf("removerFim() (lista vazia) -> valor=%d ok=%v (esperado 0 false)\n", valor, ok2)
+
+	fmt.Println("\n--- removerPosicao ---")
+	l3 := &lista{}
+	l3.adicionarFim(10)
+	l3.adicionarFim(20)
+	l3.adicionarFim(30)
+	l3.adicionarFim(40) // [10 20 30 40]
+
+	valor, ok3 := l3.removerPosicao(1)
+	fmt.Printf("removerPosicao(1) -> valor=%d ok=%v (esperado 20 true)\n", valor, ok3)
+	l3.imprimir()
+
+	valor, ok3 = l3.removerPosicao(-1)
+	fmt.Printf("removerPosicao(-1) -> valor=%d ok=%v (esperado 0 false)\n", valor, ok3)
+
+	valor, ok3 = l3.removerPosicao(l3.tamanho)
+	fmt.Printf("removerPosicao(tamanho) -> valor=%d ok=%v (esperado 0 false)\n", valor, ok3)
+
+	// lista vazia
+	vazia := &lista{}
+	valor, ok3 = vazia.removerPosicao(0)
+	fmt.Printf("removerPosicao(0) em lista vazia -> valor=%d ok=%v (esperado 0 false)\n", valor, ok3)
 }
