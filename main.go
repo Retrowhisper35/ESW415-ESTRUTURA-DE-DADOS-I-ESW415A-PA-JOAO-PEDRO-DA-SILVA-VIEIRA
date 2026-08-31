@@ -69,6 +69,54 @@ func (l *lista) adicionarPosicao(valor int, posicao int) bool {
 	return true
 }
 
+// removerInicio remove e retorna o valor do primeiro nó.
+// Retorna (0, false) se a lista estiver vazia.
+func (l *lista) removerInicio() (int, bool) {
+	if l.inicio == nil {
+		return 0, false
+	}
+
+	removido := l.inicio
+	l.inicio = removido.proximo
+
+	if l.inicio == nil {
+		// removeu o único elemento: fim também fica vazio
+		l.fim = nil
+	}
+
+	l.tamanho--
+	return removido.valor, true
+}
+
+// removerFim remove e retorna o valor do último nó.
+// Retorna (0, false) se a lista estiver vazia.
+func (l *lista) removerFim() (int, bool) {
+	if l.fim == nil {
+		return 0, false
+	}
+
+	valor := l.fim.valor
+
+	if l.inicio == l.fim {
+		// único elemento
+		l.inicio = nil
+		l.fim = nil
+		l.tamanho--
+		return valor, true
+	}
+
+	anterior := l.inicio
+	for anterior.proximo != l.fim {
+		anterior = anterior.proximo
+	}
+
+	anterior.proximo = nil
+	l.fim = anterior
+	l.tamanho--
+
+	return valor, true
+}
+
 func (l *lista) imprimir() {
 	atual := l.inicio
 	fmt.Print("[ ")
@@ -110,4 +158,30 @@ func main() {
 	okForaDoIntervalo := l.adicionarPosicao(0, l.tamanho+1)
 	fmt.Printf("\nadicionarPosicao(0, -1) -> ok=%v (esperado false)\n", okInvalida)
 	fmt.Printf("adicionarPosicao(0, tamanho+1) -> ok=%v (esperado false)\n", okForaDoIntervalo)
+
+	fmt.Println("\n--- removerInicio / removerFim ---")
+	l2 := &lista{}
+	l2.adicionarFim(10)
+	l2.adicionarFim(20)
+	l2.adicionarFim(30) // [10 20 30]
+
+	valor, ok2 := l2.removerInicio()
+	fmt.Printf("removerInicio() -> valor=%d ok=%v (esperado 10 true)\n", valor, ok2)
+	l2.imprimir()
+
+	valor, ok2 = l2.removerFim()
+	fmt.Printf("removerFim() -> valor=%d ok=%v (esperado 30 true)\n", valor, ok2)
+	l2.imprimir()
+
+	// lista com um único elemento: remoção deve zerar início e fim
+	valor, ok2 = l2.removerInicio()
+	fmt.Printf("removerInicio() (único elemento) -> valor=%d ok=%v (esperado 20 true)\n", valor, ok2)
+	l2.imprimir()
+
+	// lista vazia
+	valor, ok2 = l2.removerInicio()
+	fmt.Printf("removerInicio() (lista vazia) -> valor=%d ok=%v (esperado 0 false)\n", valor, ok2)
+
+	valor, ok2 = l2.removerFim()
+	fmt.Printf("removerFim() (lista vazia) -> valor=%d ok=%v (esperado 0 false)\n", valor, ok2)
 }
