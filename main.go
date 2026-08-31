@@ -144,6 +144,23 @@ func (l *lista) removerPosicao(posicao int) (int, bool) {
 	return removido.valor, true
 }
 
+// posicao percorre a lista comparando atual.valor a cada passo e retorna o
+// índice onde valorProcurado foi encontrado. Retorna (0, false) se não existir.
+func (l *lista) posicao(valorProcurado int) (int, bool) {
+	atual := l.inicio
+	indice := 0
+
+	for atual != nil {
+		if atual.valor == valorProcurado {
+			return indice, true
+		}
+		atual = atual.proximo
+		indice++
+	}
+
+	return 0, false
+}
+
 func (l *lista) imprimir() {
 	atual := l.inicio
 	fmt.Print("[ ")
@@ -233,4 +250,19 @@ func main() {
 	vazia := &lista{}
 	valor, ok3 = vazia.removerPosicao(0)
 	fmt.Printf("removerPosicao(0) em lista vazia -> valor=%d ok=%v (esperado 0 false)\n", valor, ok3)
+
+	fmt.Println("\n--- posicao (busca por valor) ---")
+	l4 := &lista{}
+	l4.adicionarFim(10)
+	l4.adicionarFim(20)
+	l4.adicionarFim(30) // [10 20 30]
+
+	idx, ok4 := l4.posicao(20)
+	fmt.Printf("posicao(20) -> indice=%d ok=%v (esperado 1 true)\n", idx, ok4)
+
+	idx, ok4 = l4.posicao(999)
+	fmt.Printf("posicao(999) -> indice=%d ok=%v (esperado 0 false)\n", idx, ok4)
+
+	idx, ok4 = vazia.posicao(10)
+	fmt.Printf("posicao(10) em lista vazia -> indice=%d ok=%v (esperado 0 false)\n", idx, ok4)
 }
