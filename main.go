@@ -161,6 +161,21 @@ func (l *lista) posicao(valorProcurado int) (int, bool) {
 	return 0, false
 }
 
+// valorNaPosicao percorre a lista até posicaoProcurada e retorna o valor
+// armazenado ali. Retorna (0, false) se a posição não existir.
+func (l *lista) valorNaPosicao(posicaoProcurada int) (int, bool) {
+	if posicaoProcurada < 0 || posicaoProcurada >= l.tamanho {
+		return 0, false
+	}
+
+	atual := l.inicio
+	for i := 0; i < posicaoProcurada; i++ {
+		atual = atual.proximo
+	}
+
+	return atual.valor, true
+}
+
 func (l *lista) imprimir() {
 	atual := l.inicio
 	fmt.Print("[ ")
@@ -265,4 +280,17 @@ func main() {
 
 	idx, ok4 = vazia.posicao(10)
 	fmt.Printf("posicao(10) em lista vazia -> indice=%d ok=%v (esperado 0 false)\n", idx, ok4)
+
+	fmt.Println("\n--- valorNaPosicao ---")
+	valorPos, ok5 := l4.valorNaPosicao(1)
+	fmt.Printf("valorNaPosicao(1) -> valor=%d ok=%v (esperado 20 true)\n", valorPos, ok5)
+
+	valorPos, ok5 = l4.valorNaPosicao(-1)
+	fmt.Printf("valorNaPosicao(-1) -> valor=%d ok=%v (esperado 0 false)\n", valorPos, ok5)
+
+	valorPos, ok5 = l4.valorNaPosicao(l4.tamanho)
+	fmt.Printf("valorNaPosicao(tamanho) -> valor=%d ok=%v (esperado 0 false)\n", valorPos, ok5)
+
+	valorPos, ok5 = vazia.valorNaPosicao(0)
+	fmt.Printf("valorNaPosicao(0) em lista vazia -> valor=%d ok=%v (esperado 0 false)\n", valorPos, ok5)
 }
